@@ -1,0 +1,15 @@
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.csproj.AssemblyReference.cache
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.AssemblyInfoInputs.cache
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.AssemblyInfo.cs
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.csproj.CoreCompileInputs.cache
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/bin/Debug/net7.0/MovementTest
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/bin/Debug/net7.0/MovementTest.deps.json
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/bin/Debug/net7.0/MovementTest.runtimeconfig.json
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/bin/Debug/net7.0/MovementTest.dll
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/bin/Debug/net7.0/MovementTest.pdb
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.dll
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/refint/MovementTest.dll
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.pdb
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/MovementTest.genruntimeconfig.cache
+/Users/sigurdsevaldrud/Projects/MovementTest/MovementTest/obj/Debug/net7.0/ref/MovementTest.dll
