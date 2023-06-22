@@ -20,11 +20,14 @@ namespace MovementTest
         public bool FollowsNearest { get; set; }
         public bool IsInfectious { get; set; }
 
-        public GameObject(Application app, char symbol, int movementSpeed = 1, bool isSolid = true, bool isHostile = false, bool followsPlayer = false, bool avoidsNearest = false, bool followsNearest = false, bool isInfectious = false)
+        public ConsoleColor ObjectColor { get; set; }
+
+        public GameObject(Application app, char symbol, int movementSpeed = 1, ConsoleColor objColor = ConsoleColor.White, bool isSolid = true, bool isHostile = false, bool followsPlayer = false, bool avoidsNearest = false, bool followsNearest = false, bool isInfectious = false)
         {
             App = app;
             MovementSpeed = movementSpeed;
             Symbol = symbol;
+            ObjectColor = objColor;
             IsSolid = isSolid;
             IsHostile = isHostile;
             FollowsPlayer = followsPlayer;
@@ -33,21 +36,39 @@ namespace MovementTest
             IsInfectious = isInfectious;
         }
 
-        public GameObject(GameObject gameObject, int y, int x, List<char> randomSymbols = null)
+        public GameObject(Application app, int y, int x)
+        {
+            Name = "Cell";
+            yPos = y;
+            xPos = x;
+            App = app;
+            MovementSpeed = 0;
+            Symbol = '#';
+            ObjectColor = ConsoleColor.White;
+            IsSolid = false;
+            IsHostile = false;
+            FollowsPlayer = false;
+            AvoidsNearest = false;
+            FollowsNearest = false;
+            IsInfectious = false;
+        }
+
+        public GameObject(GameObject gameObject, int y, int x, List<char> randomSymbolsOverride = null, ConsoleColor colorOverride = ConsoleColor.Black)
         {
             App = gameObject.App;
             yPos = y;
             xPos = x;
 
-            if (randomSymbols == null)
+            if (randomSymbolsOverride == null)
             {
                 Symbol = gameObject.Symbol;
             }
             else
             {
-                Symbol = randomSymbols[App.Rand.Next(0, randomSymbols.Count)];
+                Symbol = randomSymbolsOverride[App.Rand.Next(0, randomSymbolsOverride.Count)];
             }
 
+            ObjectColor = gameObject.ObjectColor;
             IsSolid = gameObject.IsSolid;
             IsHostile = gameObject.IsHostile;
             FollowsPlayer = gameObject.FollowsPlayer;
@@ -55,12 +76,19 @@ namespace MovementTest
             AvoidsNearest = gameObject.AvoidsNearest;
             IsInfectious = gameObject.IsInfectious;
             MovementSpeed = gameObject.MovementSpeed;
+
+            if (colorOverride != ConsoleColor.Black)
+            {
+                ObjectColor = colorOverride;
+            }
         }
 
         public void moveObject(int dy, int dx)
         {
             yPos += dy;
             xPos += dx;
+            //yPos = Math.Clamp(yPos, 1, App.ScreenHeight - 1);
+            //xPos = Math.Clamp(xPos, 1, App.ScreenWidth - 1);
         }
 
         public void doCollision(GameObject Mover, GameObject Stander)
@@ -69,6 +97,7 @@ namespace MovementTest
             {
                 Mover.setMovementAwayFromObject(Stander);
                 Stander.setMovementAwayFromObject(Mover);
+  
                 //Mover.yMovement = 0;
                 //Mover.xMovement = 0;
             }
@@ -98,6 +127,7 @@ namespace MovementTest
             AvoidsNearest = infector.AvoidsNearest;
             FollowsNearest = infector.FollowsNearest;
             MovementSpeed = infector.MovementSpeed;
+            ObjectColor = infector.ObjectColor;
         }
 
 
@@ -137,10 +167,31 @@ namespace MovementTest
 
             if (newYPos < 0 || newYPos >= App.ScreenHeight || newXPos < 0 || newXPos >= App.ScreenWidth)
             {
+                //scoobyDoo(newYPos, newXPos);
                 reverseMovement();
                 //nullifyMovement();
                 //teleportRandom();
                 //teleportToMiddle();
+            }
+        }
+
+        public void scoobyDoo(int y, int x)
+        {
+            if (y >= App.ScreenHeight)
+            {
+                yPos = 1;
+            }
+            else if (y <= 0)
+            {
+                yPos = App.ScreenHeight - 1;
+            }
+            else if (x >= App.ScreenWidth)
+            {
+                xPos = 1;
+            }
+            if (x <= 0)
+            {
+                xPos = App.ScreenWidth - 1;
             }
         }
 
@@ -239,19 +290,36 @@ namespace MovementTest
 
         double[] getPytDistances()
         {
-            List<int> yDistances = new List<int>(App.GameObjects.Count - 1);
-            List<int> xDistances = new List<int>(App.GameObjects.Count - 1);
             List<double> pytDistances = new List<double>(App.GameObjects.Count - 1);
 
             for (int i = 0; i < App.GameObjects.Count; i++)
             {
                 if (App.GameObjects[i].yPos != yPos || App.GameObjects[i].xPos != xPos)
                 {
-                    pytDistances.Add(Math.Round(Math.Sqrt(Math.Pow(Math.Abs(yPos) - Math.Abs(App.GameObjects[i].yPos), 2) + Math.Pow(Math.Abs(xPos) - Math.Abs(App.GameObjects[i].xPos), 2)), 1));
+                    pytDistances.Add(getPytDistance(App.GameObjects[i]));
                 }
             }
             pytDistances.Sort();
             return pytDistances.ToArray();
+        }
+
+        double getPytDistance(GameObject gameObject)
+        {
+            int[] distanceVector = getDistanceVector(gameObject);
+
+            int lowerVal = distanceVector.Min();
+            int higherVal = distanceVector.Max();
+
+            return Math.Abs(distanceVector[0]) + Math.Abs(distanceVector[1]);
+        }
+
+        int[] getDistanceVector(GameObject gameObject)
+        {
+            int dy = Math.Abs(yPos) - Math.Abs(gameObject.yPos);
+            int dx = Math.Abs(xPos) - Math.Abs(gameObject.xPos);
+
+            int[] distanceVector = new int[] { dy, dx };
+            return distanceVector;
         }
 
         List<GameObject> nearestToFurthest()
@@ -263,7 +331,7 @@ namespace MovementTest
                 {
                     if (gameObject != this)
                     {
-                        double objectPytDistance = Math.Round(Math.Sqrt(Math.Pow(Math.Abs(yPos) - Math.Abs(gameObject.yPos), 2) + Math.Pow(Math.Abs(xPos) - Math.Abs(gameObject.xPos), 2)), 1);
+                        double objectPytDistance = getPytDistance(gameObject);
                         if (distance > objectPytDistance - 1 && distance < objectPytDistance + 1)
                         {
                             nearestToFurthestObjects.Add(gameObject);
@@ -276,11 +344,12 @@ namespace MovementTest
 
         public GameObject nearestNotFollower()
         {
-            for (int i = 0; i < nearestToFurthest().Count; i++)
+            var nearestToFurthestArr = nearestToFurthest();
+            for (int i = 0; i < nearestToFurthestArr.Count; i++)
             {
-                if (!nearestToFurthest()[i].FollowsNearest)
+                if (!nearestToFurthestArr[i].FollowsNearest)
                 {
-                    return nearestToFurthest()[i];
+                    return nearestToFurthestArr[i];
                 }
             }
             return App.GameObjects[App.Rand.Next(0, App.GameObjects.Count)];
@@ -288,52 +357,15 @@ namespace MovementTest
 
         public GameObject nearestNotRunner()
         {
-            for (int i = 0; i < nearestToFurthest().Count; i++)
+            var nearestToFurthestArr = nearestToFurthest();
+            for (int i = 0; i < nearestToFurthestArr.Count; i++)
             {
-                if (!nearestToFurthest()[i].AvoidsNearest)
+                if (!nearestToFurthestArr[i].AvoidsNearest)
                 {
-                    return nearestToFurthest()[i];
+                    return nearestToFurthestArr[i];
                 }
             }
             return App.GameObjects[App.Rand.Next(0, App.GameObjects.Count)];
-        }
-
-
-
-        public GameObject nearestObjectBackup()
-        {
-            int[] yDistances = new int[App.GameObjects.Count];
-            int[] xDistances = new int[App.GameObjects.Count];
-            double[] pytDistances = new double[App.GameObjects.Count];
-
-            for (int i = 0; i < App.GameObjects.Count; i++)
-            {
-                if (App.GameObjects[i] != this)
-                {
-                    yDistances[i] = yPos - App.GameObjects[i].yPos;
-                    xDistances[i] = xPos - App.GameObjects[i].xPos;
-                    pytDistances[i] = Math.Sqrt(Math.Pow(yDistances[i], 2) + Math.Pow(xDistances[i], 2));
-                }
-            }
-            int lowestYDiff = yDistances.Min();
-            int lowestXDiff = xDistances.Min();
-
-            foreach (GameObject gameObject in App.GameObjects)
-            {
-                if (lowestXDiff <= lowestYDiff && (xPos - gameObject.xPos) == lowestXDiff)
-                {
-                    return gameObject;
-                }
-                else if (lowestYDiff <= lowestXDiff && (yPos - gameObject.yPos) == lowestYDiff)
-                {
-                    return gameObject;
-                }
-                if (xPos - gameObject.xPos == lowestXDiff || yPos - gameObject.yPos == lowestYDiff)
-                {
-                    return gameObject;
-                }
-            }
-            return App.NullObject;
         }
 
         public void setObjectMovement(int yMove, int xMove)

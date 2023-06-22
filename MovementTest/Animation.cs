@@ -3,7 +3,8 @@ namespace MovementTest
 {
 	public class Animation
 	{
-		public List<AnimationFrame> AnimationFrames { get; set; }
+        //koble til incrementalgame hver ascension større verden.
+        public List<AnimationFrame> AnimationFrames { get; set; }
 		public int RefreshRate { get; set; }
 
 		public Animation()
@@ -29,7 +30,7 @@ namespace MovementTest
 		{
 			for (int i = 0; i < AnimationFrames.Count; i++)
 			{
-				AnimationFrames[i].printFrame(refreshRate, false, color, colorH);
+				AnimationFrames[i].printFrame(refreshRate, color, colorH);
 			}
 		}
 	}
